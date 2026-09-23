@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Love Appointment 💘 | Book our date</title>
+  <!-- EmailJS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      margin: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ========== FULL-SCREEN PHOTO BACKGROUND ========== */
+    .bg-photo-full {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(0.55) blur(3px);
+      transform: scale(1.05);
+    }
+
+    /* Dark overlay on photo */
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 192, 203, 0.25);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ========== FLOATING ❤️ HEARTS (SMALL TO BIG) ========== */
+    .hearts-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: -60px;
+      animation: floatUpHeart 5s ease-in infinite;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 8px rgba(255, 50, 80, 0.6));
+    }
+
+    @keyframes floatUpHeart {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.2);
+        opacity: 0.9;
+      }
+      20% {
+        transform: translateY(-20vh) rotate(45deg) scale(0.6);
+        opacity: 0.8;
+      }
+      40% {
+        transform: translateY(-40vh) rotate(120deg) scale(0.9);
+        opacity: 0.7;
+      }
+      60% {
+        transform: translateY(-60vh) rotate(200deg) scale(1.2);
+        opacity: 0.5;
+      }
+      80% {
+        transform: translateY(-80vh) rotate(300deg) scale(1.6);
+        opacity: 0.25;
+      }
+      100% {
+        transform: translateY(-105vh) rotate(360deg) scale(2.2);
+        opacity: 0;
+      }
+    }
+
+    /* Floating text */
+    .floating-text {
+      position: fixed;
+      top: 20px;
+      left: 10px;
+      font-size: 2.2rem;
+      opacity: 0.3;
+      white-space: pre;
+      pointer-events: none;
+      transform: rotate(-2deg);
+      letter-spacing: 8px;
+      z-index: 1;
+      color: white;
+      text-shadow: 0 2px 10px rgba(200, 50, 70, 0.5);
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+
+    .card {
+      background: rgba(255, 248, 250, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 30px 50px rgba(180, 60, 80, 0.25), 0 10px 25px rgba(200, 100, 120, 0.3);
+      border-radius: 3.5rem 3.5rem 3rem 3rem;
+      padding: 2.5rem 2rem;
+      max-width: 550px;
+      width: 100%;
+      border: 2px solid rgba(255, 220, 220, 0.8);
+      position: relative;
+      z-index: 2;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: #c44569;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      text-shadow: 0 2px 5px rgba(200, 50, 70, 0.15);
+    }
+    h1 span {
+      background: #ffe0e5;
+      padding: 0.2rem 0.8rem;
+      border-radius: 60px;
+      font-size: 1.8rem;
+    }
+
+    .subhead {
+      color: #b3415c;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 1.8rem;
+      border-bottom: 2px dashed #f3b6c4;
+      padding-bottom: 0.8rem;
+      display: inline-block;
+      font-style: italic;
+    }
+
+    .date-type-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1.8rem 0 1.5rem;
+    }
+
+    .date-option {
+      background: #ffeef2;
+      border: 2px solid #f5c1cb;
+      border-radius: 2.5rem;
+      padding: 0.9rem 1.4rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #9e3b4e;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 5px 10px rgba(200, 110, 120, 0.1);
+      background: #fff5f7;
+    }
+
+    .date-option:hover {
+      background: #fec7d7;
+      border-color: #e57a8e;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 18px rgba(210, 80, 100, 0.2);
+    }
+
+    .date-option.selected {
+      background: #e8435c;
+      border-color: #c72c41;
+      color: white;
+      box-shadow: 0 10px 20px rgba(232, 67, 92, 0.4);
+    }
+
+    .input-group {
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+
+    label {
+      font-weight: 600;
+      color: #9c4b5a;
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 2.5rem;
+      border: 2px solid #f3c1cb;
+      background: #fffafc;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+      font-family: 'Quicksand', sans-serif;
+      color: #4a2c33;
+      font-weight: 500;
+      background: #ffffff;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    input:focus, select:focus {
+      border-color: #e8435c;
+      box-shadow: 0 0 0 4px rgba(232, 67, 92, 0.2);
+    }
+
+    .double-field {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .double-field > div {
+      flex: 1 1 0;
+    }
+
+    .cute-btn {
+      background: #e8435c;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1.4rem;
+      padding: 1rem 2rem;
+      border-radius: 3rem;
+      width: 100%;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 1.2rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #e8435c, #c72c41);
+      box-shadow: 0 12px 20px -10px rgba(199, 44, 65, 0.5);
+      border: 1px solid #ffb3c1;
+      position: relative;
+    }
+
+    .cute-btn:hover {
+      background: linear-gradient(135deg, #d63850, #b02238);
+      transform: scale(1.02);
+      box-shadow: 0 16px 24px -8px rgba(180, 40, 60, 0.6);
+    }
+
+    .cute-btn:active {
+      transform: scale(0.97);
+    }
+
+    .cute-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #confirmationMessage {
+      background: #fce4ec;
+      border-radius: 2.5rem;
+      padding: 2rem 1.5rem;
+      margin-top: 2rem;
+      border: 2px solid #f7b2c0;
+      animation: fadeSlide 0.4s ease;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .confirmed-emoji {
+      font-size: 3.5rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .reschedule-link {
+      background: none;
+      border: none;
+      color: #b3415c;
+      text-decoration: underline dotted;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .footer-note {
+      margin-top: 1.2rem;
+      color: #b35d6b;
+      font-size: 0.9rem;
+    }
+
+    #statusMessage {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      color: #b3415c;
+      font-weight: 500;
+      min-height: 1.2em;
+      transition: all 0.3s;
+    }
+
+    /* ========== MUSIC BUTTON ========== */
+    .music-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e8435c, #c72c41);
+      border: 2px solid #ffb3c1;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 8px 20px rgba(200, 50, 70, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 28px rgba(200, 50, 70, 0.6);
+    }
+
+    .music-btn.playing {
+      animation: pulse 1.5s infinite;
+      background: linear-gradient(135deg, #ff6b81, #e8435c);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 8px 20px rgba(200, 50, 70, 0.4); }
+      50% { box-shadow: 0 8px 35px rgba(255, 100, 130, 0.8); }
+    }
+
+    /* ========== LOCK SCREEN ========== */
+    body.locked .card,
+    body.locked .floating-text,
+    body.locked .music-btn {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lock-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 500;
+      background: rgba(255, 220, 230, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: opacity 0.75s ease, visibility 0.75s;
+    }
+    .lock-screen.hidden-lock {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lock-card {
+      background: rgba(255, 248, 250, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 3rem;
+      padding: 3rem 2.2rem 2.6rem;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid rgba(255, 220, 220, 0.9);
+      box-shadow:
+        0 30px 60px rgba(180, 60, 80, 0.35),
+        0 10px 25px rgba(200, 100, 120, 0.25);
+      animation: lockIn 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    }
+    @keyframes lockIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.94); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .lock-icon {
+      font-size: 3.4rem;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      animation: heartBeat 1.8s ease-in-out infinite;
+      filter: drop-shadow(0 4px 12px rgba(232, 67, 92, 0.4));
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      20%      { transform: scale(1.18); }
+      40%      { transform: scale(0.97); }
+      60%      { transform: scale(1.1); }
+    }
+
+    .lock-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #c44569;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.5px;
+    }
+
+    .lock-sub {
+      color: #b3415c;
+      font-size: 1rem;
+      font-style: italic;
+      font-weight: 500;
+      margin-bottom: 1.9rem;
+    }
+
+    .pin-input {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      display: block;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 14px;
+      text-align: center;
+      padding: 1rem 0.5rem 1rem 1.5rem;
+      border-radius: 2.5rem;
+      border: 2px solid #f3c1cb;
+      background: #fff;
+      color: #4a2c33;
+      outline: none;
+      transition: all 0.3s;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+    .pin-input:focus {
+      border-color: #e8435c;
+      box-shadow: 0 0 0 5px rgba(232, 67, 92, 0.2);
+    }
+    .pin-input::placeholder {
+      color: #f0b8c4;
+      letter-spacing: 14px;
+    }
+
+    .pin-hint {
+      font-size: 0.95rem;
+      font-style: italic;
+      color: #b35d6b;
+      margin-top: 1rem;
+    }
+
+    .pin-error {
+      min-height: 1.3em;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.9rem;
+      color: #c72c41;
+      transition: color 0.3s;
+    }
+
+    @media (max-width: 450px) {
+      .card {
+        padding: 2rem 1.3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
+      .lock-card {
+        padding: 2.2rem 1.5rem 2rem;
+        border-radius: 2.5rem;
+      }
+      .lock-title { font-size: 1.6rem; }
+      .pin-input {
+        font-size: 1.6rem;
+        letter-spacing: 10px;
+        padding: 0.85rem 0.4rem 0.85rem 1.2rem;
+      }
+      .pin-input::placeholder { letter-spacing: 10px; }
+    }
+  </style>
+</head>
+<body class="locked">
+  <!-- ========== FULL-SCREEN PHOTO BACKGROUND ========== -->
+  <img class="bg-photo-full" src="https://www.dropbox.com/scl/fi/dffq4iah7oq6lwuojyp1y/3C5068E7-E4C5-47C3-8ED9-63032044757B.JPG?rlkey=rrved8nzrj5sc99bnh5admjh9&st=khfnd1ge&raw=1" alt="Background Photo">
+  <div class="bg-overlay"></div>
+
+  <!-- ========== FLOATING ❤️ HEARTS ========== -->
+  <div class="hearts-container" id="heartsContainer"></div>
+
+  <!-- ========== FLOATING TEXT ========== -->
+  <div class="floating-text">Your Bae is Missing you,Baby.</div>
+
+  <!-- ========== MUSIC BUTTON ========== -->
+  <button class="music-btn playing" id="musicBtn" title="Pause music 🎶">🎶</button>
+
+  <!-- ========== LOCK SCREEN ========== -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+      <span class="lock-icon">💗</span>
+      <h2 class="lock-title">A secret for you</h2>
+      <p class="lock-sub">Enter our code to open it</p>
+      <input class="pin-input" id="pinInput" type="password" inputmode="numeric"
+             maxlength="6" placeholder="••••••" autocomplete="off" />
+      <div class="pin-hint">Hint: 6 digits of your special day 💗</div>
+      <div class="pin-error" id="pinError"></div>
+    </div>
+  </div>
+
+  <div class="card" id="appointmentCard">
+    <h1>
+      💘 Love<br><span>Appointment</span>
+    </h1>
+    <div class="subhead">pick our perfect date ✨</div>
+
+    <!-- Date type selection -->
+    <div class="date-type-grid" id="dateTypeContainer">
+      <div class="date-option" data-type="cozy-movie">🎬 Cozy movie night</div>
+      <div class="date-option" data-type="candle-dinner">🕯️ Private dinner</div>
+      <div class="date-option" data-type="park-walk">🌳 Park walk & Cafe</div>
+      <div class="date-option" data-type="Juju Alcohol Date">💃JUJU Station</div>
+      <div class="date-option" data-type="game-night">🎲 Game night & snacks</div>
+    </div>
+
+    <!-- Form inputs wrapper -->
+    <div id="formFieldsWrapper">
+      <div class="input-group">
+        <label>📅 Preferred day</label>
+        <input type="date" id="dateInput" min="" required>
+      </div>
+
+      <div class="double-field">
+        <div class="input-group">
+          <label>⏰ Time</label>
+          <input type="time" id="timeInput" value="19:00" required>
+        </div>
+        <div class="input-group">
+          <label>📍 Place / vibe</label>
+          <select id="placeSelect">
+            <option value="my place">🏠 My place</option>
+            <option value="restaurant">🍜 Restaurant</option>
+            <option value="favorite cafe">☕ Our favorite café</option>
+            <option value="Bar">💃 JUJU Station</option>
+            <option value="park">🌳 Riverside Park</option>
+            <option value="Cinema">🎬 Cinema</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>💌 Sweet note (optional)</label>
+        <input type="text" id="noteInput" placeholder="e.g., bring your hoodie or kiss me longer 😘" maxlength="60">
+      </div>
+    </div>
+
+    <button class="cute-btn" id="bookButton">
+      <span id="btnText">💖 Confirm our date 💖</span>
+    </button>
+    <div id="statusMessage"></div>
+
+    <!-- Confirmation display -->
+    <div id="confirmationMessage" class="hidden">
+      <span class="confirmed-emoji">💞</span>
+      <h3 style="color:#b3415c; font-size:1.7rem;">It's a date!</h3>
+      <p id="confirmedDetails" style="color:#4f2d36; font-weight:500; margin:0.7rem 0;"></p>
+      <button class="reschedule-link" id="rescheduleBtn">🔄 Actually, can we reschedule? 🙈</button>
+      <p class="footer-note">(don't worry, just a cute change)</p>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ========== CREATE FLOATING ❤️ HEARTS (SMALL TO BIG) ==========
+      function createFloatingHearts() {
+        const container = document.getElementById('heartsContainer');
+        
+        function createHeart() {
+          const heart = document.createElement('span');
+          heart.className = 'floating-heart';
+          heart.textContent = '❤️';  // Only red heart
+          heart.style.left = Math.random() * 100 + '%';
+          heart.style.animationDuration = (Math.random() * 4 + 4) + 's';  // 4-8 seconds
+          heart.style.animationDelay = Math.random() * 6 + 's';
+          
+          container.appendChild(heart);
+          
+          // Remove after animation
+          setTimeout(() => {
+            heart.remove();
+          }, 10000);
+        }
+        
+        // Create initial batch
+        for (let i = 0; i < 20; i++) {
+          setTimeout(createHeart, Math.random() * 4000);
+        }
+        
+        // Keep creating new hearts
+        setInterval(createHeart, 600);
+      }
+      
+      createFloatingHearts();
+
+      // ========== BACKGROUND MUSIC (AUTO-PLAY) ==========
+      const musicBtn = document.getElementById('musicBtn');
+      const bgAudio = new Audio('https://www.dropbox.com/scl/fi/sal0zrw35r17lkltn16of/music.mp3?rlkey=hpi38ryxm744twwt74co5oa0d&st=23r1arww&raw=1');
+      bgAudio.loop = true;
+      bgAudio.volume = 0.4;
+      let musicPlaying = false;
+
+      function startMusic() {
+        bgAudio.play().then(() => {
+          musicPlaying = true;
+          musicBtn.classList.add('playing');
+          musicBtn.innerHTML = '🎶';
+          musicBtn.title = 'Pause music 🎶';
+        }).catch(() => {
+          musicBtn.classList.remove('playing');
+          musicBtn.innerHTML = '🎵';
+          musicBtn.title = 'Play romantic music 🎵';
+          
+          const startOnInteraction = () => {
+            bgAudio.play().then(() => {
+              musicPlaying = true;
+              musicBtn.classList.add('playing');
+              musicBtn.innerHTML = '🎶';
+              musicBtn.title = 'Pause music 🎶';
+            }).catch(() => {});
+            document.removeEventListener('click', startOnInteraction);
+            document.removeEventListener('touchstart', startOnInteraction);
+            document.removeEventListener('scroll', startOnInteraction);
+          };
+          
+          document.addEventListener('click', startOnInteraction, { once: true });
+          document.addEventListener('touchstart', startOnInteraction, { once: true });
+          document.addEventListener('scroll', startOnInteraction, { once: true });
+        });
+      }
+
+      musicBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (musicPlaying) {
+          bgAudio.pause();
+          musicBtn.classList.remove('playing');
+          musicBtn.innerHTML = '🎵';
+          musicBtn.title = 'Play romantic music 🎵';
+          musicPlaying = false;
+        } else {
+          bgAudio.play().then(() => {
+            musicBtn.classList.add('playing');
+            musicBtn.innerHTML = '🎶';
+            musicBtn.title = 'Pause music 🎶';
+            musicPlaying = true;
+          }).catch(() => {});
+        }
+      });
+
+      startMusic();
+
+      // ========== EMAILJS CONFIGURATION ==========
+      const EMAILJS_PUBLIC_KEY = "SkJ5ozCLcDzyrnZ1M";
+      const EMAILJS_SERVICE_ID = "service_vjfqiyi";
+      const EMAILJS_TEMPLATE_ID = "template_kxpdd28";
+
+      (function initEmailJS() {
+        if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY_HERE") {
+          emailjs.init(EMAILJS_PUBLIC_KEY);
+        }
+      })();
+
+      // ---------- DOM elements ----------
+      const dateOptions = document.querySelectorAll('.date-option');
+      const dateInput = document.getElementById('dateInput');
+      const timeInput = document.getElementById('timeInput');
+      const placeSelect = document.getElementById('placeSelect');
+      const noteInput = document.getElementById('noteInput');
+      const bookButton = document.getElementById('bookButton');
+      const btnText = document.getElementById('btnText');
+      const statusMessage = document.getElementById('statusMessage');
+      const confirmationDiv = document.getElementById('confirmationMessage');
+      const confirmedDetails = document.getElementById('confirmedDetails');
+      const rescheduleBtn = document.getElementById('rescheduleBtn');
+      const formWrapper = document.getElementById('formFieldsWrapper');
+      const appointmentCard = document.getElementById('appointmentCard');
+
+      let selectedDateType = null;
+
+      function setMinDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+        dateInput.setAttribute('min', todayStr);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tyyyy = tomorrow.getFullYear();
+        const tmm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const tdd = String(tomorrow.getDate()).padStart(2, '0');
+        dateInput.value = `${tyyyy}-${tmm}-${tdd}`;
+      }
+      setMinDate();
+
+      dateOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          dateOptions.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+          selectedDateType = this.getAttribute('data-type');
+        });
+      });
+
+      function formatDateNice(dateStr) {
+        if (!dateStr) return 'a special day';
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateStr + 'T00:00:00');
+        return date.toLocaleDateString(undefined, options);
+      }
+
+      function formatTimeNice(timeStr) {
+        if (!timeStr) return '';
+        const [hours, minutes] = timeStr.split(':');
+        const hourNum = parseInt(hours, 10);
+        const ampm = hourNum >= 12 ? 'PM' : 'AM';
+        const displayHour = hourNum % 12 || 12;
+        return `${displayHour}:${minutes} ${ampm}`;
+      }
+
+      function getDateTypeReadable(typeKey) {
+        const map = {
+          'cozy-movie': '🎬 Cozy movie night',
+          'candle-dinner': '🕯️ Private dinner',
+          'park-walk': '🌳 Park walk & Cafe',
+          'Juju Alcohol Date': '💃 JUJU Station',
+          'game-night': '🎲 Game night & snacks'
+        };
+        return map[typeKey] || '✨ Special date';
+      }
+
+      function getPlaceReadable(placeValue) {
+        const map = {
+          'my place': '🏠 My place',
+          'restaurant': '🍜 Restaurant',
+          'favorite cafe': '☕ Our favorite café',
+          'Bar': '💃 JUJU Station',
+          'park': '🌳 Riverside Park',
+          'Cinema': '🎬 Cinema'
+        };
+        return map[placeValue] || placeValue;
+      }
+
+      async function sendEmailNotification(dateType, dateVal, timeVal, placeVal, noteVal) {
+        if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY_HERE") {
+          return { success: false, reason: 'not_configured' };
+        }
+
+        const templateParams = {
+          date_type: getDateTypeReadable(dateType),
+          date: formatDateNice(dateVal),
+          time: formatTimeNice(timeVal),
+          place: getPlaceReadable(placeVal),
+          note: noteVal || "No note added 💌",
+          raw_date: dateVal,
+          raw_time: timeVal,
+          raw_place: placeVal
+        };
+
+        try {
+          const response = await emailjs.send(
+            EMAILJS_SERVICE_ID,
+            EMAILJS_TEMPLATE_ID,
+            templateParams
+          );
+          return { success: true };
+        } catch (error) {
+          return { success: false, reason: 'send_failed' };
+        }
+      }
+
+      async function handleBooking() {
+        if (!selectedDateType) {
+          statusMessage.textContent = '💘 Please pick a date vibe first!';
+          return;
+        }
+        if (!dateInput.value) {
+          statusMessage.textContent = '📅 Pick a day for our date!';
+          return;
+        }
+        if (!timeInput.value) {
+          statusMessage.textContent = '⏰ What time should we meet?';
+          return;
+        }
+
+        statusMessage.textContent = '';
+        bookButton.disabled = true;
+        btnText.innerHTML = '<span class="spinner"></span> Sending...';
+
+        const dateVal = dateInput.value;
+        const timeVal = timeInput.value;
+        const placeVal = placeSelect.value;
+        const noteVal = noteInput.value.trim();
+
+        await sendEmailNotification(selectedDateType, dateVal, timeVal, placeVal, noteVal);
+
+        let detailsHtml = `${getDateTypeReadable(selectedDateType)}<br>`;
+        detailsHtml += `📅 <strong>${formatDateNice(dateVal)}</strong> at <strong>${formatTimeNice(timeVal)}</strong><br>`;
+        detailsHtml += `📍 ${getPlaceReadable(placeVal)}`;
+        if (noteVal) {
+          detailsHtml += `<br>💬 "${noteVal}"`;
+        }
+        confirmedDetails.innerHTML = detailsHtml;
+
+        formWrapper.classList.add('hidden');
+        bookButton.classList.add('hidden');
+        statusMessage.classList.add('hidden');
+        confirmationDiv.classList.remove('hidden');
+
+        bookButton.disabled = false;
+        btnText.innerHTML = '💖 Confirm our date 💖';
+        confirmationDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function handleReschedule() {
+        formWrapper.classList.remove('hidden');
+        document.querySelector('.date-type-grid').classList.remove('hidden');
+        bookButton.classList.remove('hidden');
+        statusMessage.classList.remove('hidden');
+        statusMessage.textContent = '';
+        confirmationDiv.classList.add('hidden');
+        appointmentCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      bookButton.addEventListener('click', handleBooking);
+      rescheduleBtn.addEventListener('click', handleReschedule);
+
+      noteInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleBooking();
+        }
+      });
+
+      [dateInput, timeInput, placeSelect, noteInput].forEach(el => {
+        el.addEventListener('input', () => {
+          if (statusMessage.textContent && !statusMessage.textContent.includes('Sending')) {
+            statusMessage.textContent = '';
+          }
+        });
+      });
+
+      dateOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+          if (statusMessage.textContent && !statusMessage.textContent.includes('Sending')) {
+            statusMessage.textContent = '';
+          }
+        });
+      });
+
+      // ========== LOCK SCREEN ==========
+      const LOCK_PIN   = '170603';              // <-- change to your secret PIN
+      const LOCK_KEY   = 'love_appt_unlocked';  // session flag name
+      const DEV_BYPASS = new URLSearchParams(location.search).has('dev');
+
+      const lockScreen = document.getElementById('lockScreen');
+      const pinInput   = document.getElementById('pinInput');
+      const pinError   = document.getElementById('pinError');
+
+      function unlockPage() {
+        document.body.classList.remove('locked');
+        lockScreen.classList.add('hidden-lock');
+        setTimeout(() => { lockScreen.style.display = 'none'; }, 800);
+        // Kick music on unlock (counts as a user gesture)
+        bgAudio.play().then(() => {
+          musicPlaying = true;
+          musicBtn.classList.add('playing');
+          musicBtn.innerHTML = '🎶';
+          musicBtn.title = 'Pause music 🎶';
+        }).catch(() => {});
+      }
+
+      /* Skip the lock if already unlocked in this session, or if ?dev=1 */
+      let alreadyUnlocked = false;
+      try { alreadyUnlocked = sessionStorage.getItem(LOCK_KEY) === '1'; } catch (e) {}
+
+      if (alreadyUnlocked || DEV_BYPASS) {
+        lockScreen.style.display = 'none';
+        document.body.classList.remove('locked');
+      } else {
+        setTimeout(() => pinInput.focus(), 500);
+      }
+
+      pinInput.addEventListener('input', () => {
+        pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 6);
+        pinError.textContent = '';
+
+        if (pinInput.value.length === 6) {
+          if (pinInput.value === LOCK_PIN) {
+            pinInput.blur();
+            try { sessionStorage.setItem(LOCK_KEY, '1'); } catch (e) {}
+            pinError.style.color = '#2e7d32';
+            pinError.textContent = 'Unlocked 💗 opening…';
+            setTimeout(unlockPage, 450);
+          } else {
+            pinError.style.color = '#c72c41';
+            pinError.textContent = 'Hmm… that\'s not it. Try again 💗';
+            pinInput.value = '';
+            pinInput.style.borderColor = '#c72c41';
+            setTimeout(() => pinInput.style.borderColor = '', 700);
+          }
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
